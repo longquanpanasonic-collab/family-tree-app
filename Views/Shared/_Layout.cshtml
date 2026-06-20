@@ -1,9 +1,11 @@
+<%@ Master Language="C#" Inherits="System.Web.Mvc.ViewMasterPage" %>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewBag.Title - Hệ Thống Quản Lý Gia Phả Trực Tuyến</title>
+    <title><%: ViewBag.Title %> - Hệ Thống Quản Lý Gia Phả Trực Tuyến</title>
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/site.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
@@ -11,47 +13,44 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="@Url.Action("Index", "Home")"><i class="fas fa-tree"></i> Gia Phả Online</a>
+            <a class="navbar-brand" href="<%: Url.Action("Index", "Home") %>"><i class="fas fa-tree"></i> Gia Phả Online</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Index", "Home")"><i class="fas fa-home"></i> Trang Chủ</a>
+                        <a class="nav-link" href="<%: Url.Action("Index", "Home") %>"><i class="fas fa-home"></i> Trang Chủ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Index", "FamilyMembers")"><i class="fas fa-users"></i> Thành Viên</a>
+                        <a class="nav-link" href="<%: Url.Action("Index", "FamilyMembers") %>"><i class="fas fa-users"></i> Thành Viên</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Index", "News")"><i class="fas fa-newspaper"></i> Tin Tức</a>
+                        <a class="nav-link" href="<%: Url.Action("Index", "News") %>"><i class="fas fa-newspaper"></i> Tin Tức</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Index", "Gallery")"><i class="fas fa-images"></i> Hình Ảnh</a>
+                        <a class="nav-link" href="<%: Url.Action("Index", "Gallery") %>"><i class="fas fa-images"></i> Hình Ảnh</a>
                     </li>
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user"></i> @User.Identity.Name
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="@Url.Action("Create", "News")">Tạo Tin Tức</a></li>
-                                <li><a class="dropdown-item" href="@Url.Action("Upload", "Gallery")">Upload Ảnh</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="@Url.Action("Logout", "Account")">Đăng Xuất</a></li>
-                            </ul>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Login", "Account")"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Register", "Account")"><i class="fas fa-user-plus"></i> Đăng Ký</a>
-                        </li>
-                    }
+                    <% if (Request.IsAuthenticated) { %>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> <%: Page.User.Identity.Name %>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="<%: Url.Action("Create", "News") %>">Tạo Tin Tức</a></li>
+                            <li><a class="dropdown-item" href="<%: Url.Action("Upload", "Gallery") %>">Upload Ảnh</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<%: Url.Action("Logout", "Account") %>">Đăng Xuất</a></li>
+                        </ul>
+                    </li>
+                    <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<%: Url.Action("Login", "Account") %>"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<%: Url.Action("Register", "Account") %>"><i class="fas fa-user-plus"></i> Đăng Ký</a>
+                    </li>
+                    <% } %>
                 </ul>
             </div>
         </div>
@@ -59,7 +58,7 @@
 
     <main class="py-4">
         <div class="container">
-            @RenderBody()
+            <%: RenderBody() %>
         </div>
     </main>
 
@@ -73,9 +72,9 @@
                 <div class="col-md-4">
                     <h5>Liên Kết Nhanh</h5>
                     <ul class="list-unstyled">
-                        <li><a href="@Url.Action("Index", "Home")" class="text-light">Trang Chủ</a></li>
-                        <li><a href="@Url.Action("Index", "FamilyMembers")" class="text-light">Thành Viên</a></li>
-                        <li><a href="@Url.Action("Index", "News")" class="text-light">Tin Tức</a></li>
+                        <li><a href="<%: Url.Action("Index", "Home") %>" class="text-light">Trang Chủ</a></li>
+                        <li><a href="<%: Url.Action("Index", "FamilyMembers") %>" class="text-light">Thành Viên</a></li>
+                        <li><a href="<%: Url.Action("Index", "News") %>" class="text-light">Tin Tức</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
@@ -94,5 +93,6 @@
     <script src="~/Scripts/jquery-3.6.0.min.js"></script>
     <script src="~/Scripts/bootstrap.bundle.min.js"></script>
     <script src="~/Scripts/site.js"></script>
+    <%: RenderSection("Scripts", required: false) %>
 </body>
 </html>
