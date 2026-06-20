@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
@@ -65,6 +66,7 @@ namespace FamilyTreeApp.Controllers
         }
 
         // GET: FamilyMembers/Create
+        [Authorize]
         public ActionResult Create()
         {
             ViewBag.FatherId = new SelectList(db.FamilyMembers.Where(m => m.Gender == "Nam"), "Id", "FullName");
@@ -76,6 +78,7 @@ namespace FamilyTreeApp.Controllers
         // POST: FamilyMembers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Create([Bind(Include = "FullName,DateOfBirth,Gender,PhoneNumber,Email,Address,Occupation,FatherId,MotherId,SpouseId")] FamilyMember member, HttpPostedFileBase profileImage)
         {
             if (ModelState.IsValid)
@@ -112,6 +115,7 @@ namespace FamilyTreeApp.Controllers
         }
 
         // GET: FamilyMembers/Edit/5
+        [Authorize]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -130,6 +134,7 @@ namespace FamilyTreeApp.Controllers
         // POST: FamilyMembers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Edit([Bind(Include = "Id,FullName,DateOfBirth,Gender,PhoneNumber,Email,Address,Occupation,ProfileImage,FatherId,MotherId,SpouseId,CreatedDate")] FamilyMember member, HttpPostedFileBase profileImage)
         {
             if (ModelState.IsValid)
@@ -167,6 +172,7 @@ namespace FamilyTreeApp.Controllers
         }
 
         // GET: FamilyMembers/Delete/5
+        [Authorize]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -182,6 +188,7 @@ namespace FamilyTreeApp.Controllers
         // POST: FamilyMembers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult DeleteConfirmed(int id)
         {
             FamilyMember member = db.FamilyMembers.Find(id);

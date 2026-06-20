@@ -13,15 +13,16 @@ namespace FamilyTreeApp.Controllers
         private FamilyTreeContext db = new FamilyTreeContext();
 
         // GET: Account/Login
-        public ActionResult Login()
+        public ActionResult Login(string returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
         // POST: Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(string username, string password, bool rememberMe = false)
+        public ActionResult Login(string username, string password, bool rememberMe = false, string returnUrl = "")
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
@@ -48,6 +49,10 @@ namespace FamilyTreeApp.Controllers
 
             // Thiết lập Forms Authentication
             FormsAuthentication.SetAuthCookie(username, rememberMe);
+            
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+            
             return RedirectToAction("Index", "Home");
         }
 
@@ -60,27 +65,33 @@ namespace FamilyTreeApp.Controllers
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(User user, string confirmPassword)
+        public ActionResult Register(string username, string email, string password, string confirmPassword, string fullName)
         {
-            if (string.IsNullOrEmpty(confirmPassword) || user.Password != confirmPassword)
+            if (string.IsNullOrEmpty(confirmPassword) || password != confirmPassword)
             {
                 ModelState.AddModelError("confirmPassword", "Mật khẩu không trùng khớp");
-                return View(user);
+                return View();
             }
 
-            var existingUser = db.Users.FirstOrDefault(u => u.Username == user.Username);
+            var existingUser = db.Users.FirstOrDefault(u => u.Username == username);
             if (existingUser != null)
             {
-                ModelState.AddModelError("Username", "Tên đăng nhập đã được sử dụng");
-                return View(user);
+                ModelState.AddModelError("username", "Tên đăng nhập đã được sử dụng");
+                return View();
             }
 
             if (ModelState.IsValid)
             {
-                user.Password = HashPassword(user.Password);
-                user.CreatedDate = DateTime.Now;
-                user.IsActive = true;
-                user.Role = "User";
+                var user = new User
+                {
+                    Username = username,
+                    Email = email,
+                    Password = HashPassword(password),
+                    FullName = fullName,
+                    CreatedDate = DateTime.Now,
+                    IsActive = true,
+                    Role = "User"
+                };
 
                 db.Users.Add(user);
                 db.SaveChanges();
@@ -88,7 +99,7 @@ namespace FamilyTreeApp.Controllers
                 return RedirectToAction("Login");
             }
 
-            return View(user);
+            return View();
         }
 
         // GET: Account/Logout
