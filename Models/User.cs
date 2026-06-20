@@ -21,7 +21,7 @@ namespace FamilyTreeApp.Models
         public DateTime? LastLoginDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         
-        // Quan hệ
+        // Navigation
         public virtual ICollection<FamilyMember> FamilyMembers { get; set; }
         public virtual ICollection<News> News { get; set; }
     }
