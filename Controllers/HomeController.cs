@@ -1,6 +1,6 @@
+using System.Linq;
 using System.Web.Mvc;
 using FamilyTreeApp.Data;
-using System.Linq;
 
 namespace FamilyTreeApp.Controllers
 {
@@ -10,27 +10,20 @@ namespace FamilyTreeApp.Controllers
 
         public ActionResult Index()
         {
-            var featuredNews = db.News.Where(n => n.IsFeatured).OrderByDescending(n => n.CreatedDate).Take(5).ToList();
-            ViewBag.FeaturedNews = featuredNews;
+            // Lấy tin nổi bật
+            ViewBag.FeaturedNews = db.News.Where(n => n.IsFeatured).OrderByDescending(n => n.CreatedDate).Take(3).ToList();
+            
+            // Lấy thống kê
+            ViewBag.TotalMembers = db.FamilyMembers.Count();
+            ViewBag.TotalNews = db.News.Count();
+            ViewBag.TotalGalleryImages = db.GalleryImages.Count();
+
             return View();
         }
 
         public ActionResult About()
         {
             return View();
-        }
-
-        public ActionResult Contact()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public ActionResult Contact(string name, string email, string message)
-        {
-            // Gửi email hoặc lưu vào database
-            TempData["Message"] = "Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi sớm!";
-            return RedirectToAction("Contact");
         }
     }
 }

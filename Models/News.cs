@@ -6,32 +6,37 @@ namespace FamilyTreeApp.Models
     public class News
     {
         public int Id { get; set; }
-        
-        [Required(ErrorMessage = "Tiêu đề không được trống")]
+
+        [Required(ErrorMessage = "Vui lòng nhập tiêu đề")]
         [StringLength(200)]
         public string Title { get; set; }
-        
-        [Required(ErrorMessage = "Nội dung không được trống")]
+
+        [Required(ErrorMessage = "Vui lòng nhập nội dung")]
         public string Content { get; set; }
-        
-        [StringLength(500)]
-        public string Summary { get; set; }
-        
+
         public string FeaturedImage { get; set; }
-        
+
         [Required]
-        public string Category { get; set; } // Sự kiện, Thông báo, Khác
-        
-        public bool IsFeatured { get; set; }
-        public int Views { get; set; }
-        
-        // Foreign Key
-        public int UserId { get; set; }
-        
-        // Navigation
-        public virtual User User { get; set; }
-        
+        public string Category { get; set; } // Tin tức, Sự kiện, Chia sẻ
+
+        [Required]
+        public bool IsFeatured { get; set; } // Tin nổi bật
+
+        public string Author { get; set; }
+
+        [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; }
+
+        [DataType(DataType.DateTime)]
         public DateTime? UpdatedDate { get; set; }
+
+        public int ViewCount { get; set; }
+
+        public News()
+        {
+            CreatedDate = DateTime.Now;
+            ViewCount = 0;
+            IsFeatured = false;
+        }
     }
 }

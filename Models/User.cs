@@ -1,28 +1,43 @@
 using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace FamilyTreeApp.Models
 {
     public class User
     {
         public int Id { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
+        [StringLength(50, MinimumLength = 3)]
         public string Username { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
+        [StringLength(100, MinimumLength = 6)]
+        public string Password { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập email")]
+        [EmailAddress]
+        [StringLength(100)]
         public string Email { get; set; }
+
+        [StringLength(100)]
         public string FullName { get; set; }
-        public string PasswordHash { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Address { get; set; }
-        
-        // Role: Admin, User
-        public string Role { get; set; }
-        
+
+        public string Role { get; set; } // Admin, User
+
         public bool IsActive { get; set; }
+
+        [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; }
-        public DateTime? LastLoginDate { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        
-        // Navigation
-        public virtual ICollection<FamilyMember> FamilyMembers { get; set; }
-        public virtual ICollection<News> News { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime? LastLogin { get; set; }
+
+        public User()
+        {
+            CreatedDate = DateTime.Now;
+            IsActive = true;
+            Role = "User";
+        }
     }
 }

@@ -1,9 +1,10 @@
 using System;
+using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using FamilyTreeApp.Data;
 using FamilyTreeApp.Models;
-using System.Linq;
 
 namespace FamilyTreeApp.Controllers
 {
@@ -11,109 +12,109 @@ namespace FamilyTreeApp.Controllers
     {
         private FamilyTreeContext db = new FamilyTreeContext();
 
-        [AllowAnonymous]
-        public ActionResult Login(string returnUrl)
+        // GET: Account/Login
+        public ActionResult Login()
         {
-            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
+        // POST: Account/Login
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(LoginViewModel model, string returnUrl)
+        public ActionResult Login(string username, string password, bool rememberMe = false)
         {
-            if (ModelState.IsValid)
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                var user = db.Users.FirstOrDefault(u => u.Email == model.Email);
-                
-                if (user != null && VerifyPassword(model.Password, user.PasswordHash) && user.IsActive)
-                {
-                    // Đăng nhập thành công
-                    FormsAuthentication.SetAuthCookie(user.Id.ToString(), model.RememberMe);
-                    user.LastLoginDate = DateTime.Now;
-                    db.SaveChanges();
-
-                    if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/"))
-                        return Redirect(returnUrl);
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Email hoặc mật khẩu không đúng.");
-                }
+                ModelState.AddModelError("", "Vui lòng nhập tên đăng nhập và mật khẩu");
+                return View();
             }
-            return View(model);
+
+            var user = db.Users.FirstOrDefault(u => u.Username == username);
+
+            if (user == null || !VerifyPassword(password, user.Password))
+            {
+                ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng");
+                return View();
+            }
+
+            if (!user.IsActive)
+            {
+                ModelState.AddModelError("", "Tài khoản của bạn đã bị vô hiệu hóa");
+                return View();
+            }
+
+            user.LastLogin = DateTime.Now;
+            db.SaveChanges();
+
+            // Thiết lập Forms Authentication
+            FormsAuthentication.SetAuthCookie(username, rememberMe);
+            return RedirectToAction("Index", "Home");
         }
 
-        [AllowAnonymous]
+        // GET: Account/Register
         public ActionResult Register()
         {
             return View();
         }
 
+        // POST: Account/Register
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(RegisterViewModel model)
+        public ActionResult Register(User user, string confirmPassword)
         {
+            if (string.IsNullOrEmpty(confirmPassword) || user.Password != confirmPassword)
+            {
+                ModelState.AddModelError("confirmPassword", "Mật khẩu không trùng khớp");
+                return View(user);
+            }
+
+            var existingUser = db.Users.FirstOrDefault(u => u.Username == user.Username);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Username", "Tên đăng nhập đã được sử dụng");
+                return View(user);
+            }
+
             if (ModelState.IsValid)
             {
-                var existingUser = db.Users.FirstOrDefault(u => u.Email == model.Email);
-                if (existingUser != null)
-                {
-                    ModelState.AddModelError("", "Email này đã được đăng ký.");
-                    return View(model);
-                }
-
-                var user = new User
-                {
-                    Username = model.FullName,
-                    Email = model.Email,
-                    FullName = model.FullName,
-                    PasswordHash = HashPassword(model.Password),
-                    Role = "User",
-                    IsActive = true,
-                    CreatedDate = DateTime.Now
-                };
+                user.Password = HashPassword(user.Password);
+                user.CreatedDate = DateTime.Now;
+                user.IsActive = true;
+                user.Role = "User";
 
                 db.Users.Add(user);
                 db.SaveChanges();
 
                 return RedirectToAction("Login");
             }
-            return View(model);
+
+            return View(user);
         }
 
+        // GET: Account/Logout
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
             return RedirectToAction("Index", "Home");
         }
 
+        // Helper methods
         private string HashPassword(string password)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            return System.Web.Security.Membership.Provider.EncodePassword(password);
         }
 
         private bool VerifyPassword(string password, string hash)
         {
-            return BCrypt.Net.BCrypt.Verify(password, hash);
+            var hashOfInput = System.Web.Security.Membership.Provider.EncodePassword(password);
+            return hashOfInput == hash;
         }
-    }
 
-    public class LoginViewModel
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public bool RememberMe { get; set; }
-    }
-
-    public class RegisterViewModel
-    {
-        public string FullName { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public string ConfirmPassword { get; set; }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                db.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }
